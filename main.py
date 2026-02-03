@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory, send_file
 import os
 from dotenv import load_dotenv
 import json
@@ -9,7 +9,7 @@ from flask_cors import CORS
 load_dotenv()
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend/dist', static_url_path='')
 CORS(app)
 
 class BaseAgent:
@@ -71,6 +71,22 @@ class ResearchAgent(BaseAgent):
 
 
 research_agent = ResearchAgent()
+
+
+@app.route('/')
+def serve_index():
+    """Serve React index.html for SPA routing."""
+    return send_file('frontend/dist/index.html')
+
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """Serve static files from the React build directory."""
+    file_path = os.path.join('frontend/dist', path)
+    if os.path.isfile(file_path):
+        return send_from_directory('frontend/dist', path)
+    # For SPA, serve index.html for unknown routes
+    return send_file('frontend/dist/index.html')
 
 
 @app.route('/static/images/default_avatar.png')
