@@ -18,6 +18,82 @@ npm run dev
 
 Open http://localhost:5173 in your browser.
 
+## Quick start (backend - Flask API)
+
+The backend is a Flask server that serves the React frontend and provides AI agent endpoints.
+
+### Local development
+
+From the project root:
+
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Set your Groq API key
+export GROQ_API_KEY="your-groq-api-key-here"
+
+# Run the Flask server
+python3 main.py
+```
+
+The server will start on `http://localhost:5001` (or the PORT environment variable).
+
+### API Endpoints
+
+- **`GET /`** — Serves the React frontend (index.html)
+- **`GET /<path>`** — Serves static assets and SPA routing
+- **`POST /api/research`** — Research agent endpoint
+  - Request body: `{ "message": "your query" }`
+  - Response: `{ "response": "agent response" }`
+
+### Backend Architecture
+
+#### Main Files
+
+- **`main.py`** — Flask application server that:
+  - Serves the built React frontend from `frontend/dist/`
+  - Provides API endpoints for AI agents
+  - Handles CORS for frontend communication
+  - Configures caching headers for production
+
+- **`agents/`** — AI agent implementations:
+  - **`base_agent.py`** — Base class for all agents using Agno framework and Groq models
+  - **`research_agent.py`** — Specialized agent for research queries, technology comparisons, and industry trends
+
+#### How It Works
+
+1. The Flask app initializes with CORS enabled for cross-origin requests
+2. User sends a message via the React frontend
+3. Frontend calls the appropriate API endpoint (e.g., `/api/research`)
+4. Flask receives the request and instantiates the corresponding agent
+5. Agent processes the query using Groq's LLM (llama-3.3-70b-versatile)
+6. Response is returned to frontend and displayed in the chat UI
+
+#### Agent Classes
+
+**BaseAgent** — Foundation for all agents:
+- Initializes a Groq language model
+- Provides `get_response()` and `print_response()` methods
+- Supports streaming and non-streaming responses
+- Stores agent name, description, and avatar
+
+**ResearchAgent** (extends BaseAgent):
+- Implements research-specific methods
+- Supports web search queries
+- Provides technology research and comparison
+- Analyzes industry trends
+
+#### Environment Variables
+
+The backend requires:
+
+```
+GROQ_API_KEY="your-groq-api-key-here"
+```
+
+Add this to a `.env` file in the project root (not committed to git for security).
+
 ## Project structure
 
 - `frontend/` — Vite + React frontend source
